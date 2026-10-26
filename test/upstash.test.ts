@@ -48,7 +48,7 @@ describe("upstashStore", () => {
       fetch: () => Promise.resolve(new Response("nope", { status: 503 })),
     });
     expect(await store.consume("k", { window: 60, max: 1 })).toEqual({ allowed: true, retryAfter: null });
-    expect(await store.claim("k", { window: 60, max: 1 })).toBeNull();
+    expect(await store.claim("k", { window: 60 })).toBeNull();
     await store.release("k", "tok");
     await store.refund("k");
     expect(onError.mock.calls.map(([op]) => op as string)).toEqual(["consume", "claim", "release", "refund"]);

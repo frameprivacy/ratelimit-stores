@@ -66,11 +66,11 @@ describe("postgresStore without a database", () => {
     const store = postgresStore({ query: broken, fallback, onError });
     expect((await store.consume("k", { window: 60, max: 1 })).allowed).toBe(true);
     expect((await store.consume("k", { window: 60, max: 1 })).allowed).toBe(false);
-    const token = await store.claim("lease", { window: 60, max: 1 });
+    const token = await store.claim("lease", { window: 60 });
     expect(token).not.toBeNull();
-    expect(await store.claim("lease", { window: 60, max: 1 })).toBeNull();
+    expect(await store.claim("lease", { window: 60 })).toBeNull();
     await store.release("lease", token ?? undefined);
-    expect(await fallback.claim("lease", { window: 60, max: 1 })).not.toBeNull();
+    expect(await fallback.claim("lease", { window: 60 })).not.toBeNull();
     await store.refund("k");
     expect(onError.mock.calls.map(([op]) => op as string)).toEqual([
       "consume",
