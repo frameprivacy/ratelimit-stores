@@ -67,40 +67,40 @@ export function storeContract(name: string, make: () => Promise<Harness> | Harne
     it("claim is single-holder until released", async () => {
       const { store } = await make();
       const k = key();
-      const token = await store.claim(k, { window: 1, max: 1 });
+      const token = await store.claim(k, { window: 1 });
       expect(token).toEqual(expect.any(String));
-      expect(await store.claim(k, { window: 1, max: 1 })).toBeNull();
+      expect(await store.claim(k, { window: 1 })).toBeNull();
       await store.release(k, token ?? undefined);
-      expect(await store.claim(k, { window: 1, max: 1 })).toEqual(expect.any(String));
+      expect(await store.claim(k, { window: 1 })).toEqual(expect.any(String));
     });
 
     it("only one of many concurrent claims wins", async () => {
       const { store } = await make();
       const k = key();
-      const tokens = await Promise.all(Array.from({ length: 10 }, () => store.claim(k, { window: 1, max: 1 })));
+      const tokens = await Promise.all(Array.from({ length: 10 }, () => store.claim(k, { window: 1 })));
       expect(tokens.filter((t) => t !== null)).toHaveLength(1);
     });
 
     it("a stale holder cannot release a newer holder's lease", async () => {
       const { store, advance } = await make();
       const k = key();
-      const first = await store.claim(k, { window: 1, max: 1 });
+      const first = await store.claim(k, { window: 1 });
       await advance(1100);
-      const second = await store.claim(k, { window: 1, max: 1 });
+      const second = await store.claim(k, { window: 1 });
       expect(second).not.toBeNull();
       expect(second).not.toBe(first);
       await store.release(k, first ?? undefined);
-      expect(await store.claim(k, { window: 1, max: 1 })).toBeNull();
+      expect(await store.claim(k, { window: 1 })).toBeNull();
       await store.release(k);
-      expect(await store.claim(k, { window: 1, max: 1 })).not.toBeNull();
+      expect(await store.claim(k, { window: 1 })).not.toBeNull();
     });
 
     it("leases expire on their own", async () => {
       const { store, advance } = await make();
       const k = key();
-      expect(await store.claim(k, { window: 1, max: 1 })).not.toBeNull();
+      expect(await store.claim(k, { window: 1 })).not.toBeNull();
       await advance(1100);
-      expect(await store.claim(k, { window: 1, max: 1 })).not.toBeNull();
+      expect(await store.claim(k, { window: 1 })).not.toBeNull();
     });
 
     it("release without a token clears a consumed bucket", async () => {
